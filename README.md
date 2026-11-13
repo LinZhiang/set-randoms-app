@@ -1,6 +1,6 @@
 # 记录抽卡
 
-手机上记录抽卡的树。每个节点有名称和详情，可以增、删、改。发布到 Cloudflare 后，记录存在这个站点上，多台设备打开会自动同步。页面左上角可以安装到手机桌面。
+手机上记录抽卡的树。每个节点有名称和详情，可以增、删、改。发布到 Cloudflare Pages 后，记录存在这个站点上，多台设备打开会自动同步。页面左上角可以安装到手机桌面。
 
 ## 本地
 
@@ -23,4 +23,4 @@ npm run dev
 
 ## Cloudflare
 
-构建命令是 `npm run build`，部署命令是 `npx wrangler deploy`。记录存在这个 Worker 里，不需要再填 `VITE_API_BASE`。
+页面发在 Cloudflare Pages，地址是 `https://set-randoms-app.pages.dev`。构建命令是 `npm run build`，输出目录是 `dist`。记录存在这个站点的存储里，打开页面就能同步。
