@@ -1,4 +1,4 @@
-const CACHE = 'record-draws-v1'
+const CACHE = 'record-draws-v2'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

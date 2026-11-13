@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useNodesStore } from '@/stores/nodes'
 
@@ -18,6 +18,11 @@ const title = computed(() => {
   return '记录抽卡'
 })
 
+const installed =
+  window.matchMedia('(display-mode: standalone)').matches ||
+  (navigator as Navigator & { standalone?: boolean }).standalone === true
+const installNote = ref('')
+
 const statusText = computed(() => {
   if (store.link === 'syncing') return '正在同步'
   if (store.link === 'offline') return '未连接'
@@ -34,6 +39,18 @@ function syncIfVisible() {
 function levelOf(nodeId: string | null) {
   if (!nodeId) return '/'
   return `/level/${nodeId}`
+}
+
+async function onInstall() {
+  installNote.value = ''
+  if (store.installPrompt) {
+    await store.promptInstall()
+    return
+  }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  installNote.value = ios
+    ? '请用 Safari 打开，点分享，再选「添加到主屏幕」。'
+    : '请用 Chrome 打开这个页面，再点左上角「安装」。QQ 里不能直接安装。'
 }
 
 function goBack() {
@@ -72,6 +89,7 @@ onUnmounted(() => {
       <button v-if="route.name !== 'tree'" class="icon-btn" type="button" @click="goBack">
         返回
       </button>
+      <button v-else-if="!installed" class="icon-btn" type="button" @click="onInstall">安装</button>
       <span v-else class="icon-btn"></span>
       <h1>
         {{ title }}
@@ -79,6 +97,7 @@ onUnmounted(() => {
       </h1>
       <button class="icon-btn" type="button" @click="store.refresh()">同步</button>
     </header>
+    <p v-if="installNote" class="banner" role="status">{{ installNote }}</p>
     <RouterView />
   </div>
 </template>

@@ -7,20 +7,10 @@ import { useNodesStore } from '@/stores/nodes'
 const store = useNodesStore()
 const route = useRoute()
 const router = useRouter()
-const hintDismissed = ref(localStorage.getItem('record-draws-install-hint') === '1')
 const selectedId = ref<string | null>(null)
 const detailsOpenId = ref<string | null>(null)
 const confirmingId = ref<string | null>(null)
 const actionError = ref('')
-
-const standalone =
-  window.matchMedia('(display-mode: standalone)').matches ||
-  (navigator as Navigator & { standalone?: boolean }).standalone === true
-const ios = /iphone|ipad|ipod/i.test(navigator.userAgent)
-const showIosHint = computed(() => ios && !standalone && !hintDismissed.value)
-const showInstall = computed(
-  () => store.installPrompt !== null && !standalone && !hintDismissed.value,
-)
 
 const parentId = computed(() =>
   route.name === 'level' && typeof route.params.id === 'string' ? route.params.id : null,
@@ -46,11 +36,6 @@ watch(parentId, () => {
   confirmingId.value = null
   actionError.value = ''
 })
-
-function dismissHint() {
-  hintDismissed.value = true
-  localStorage.setItem('record-draws-install-hint', '1')
-}
 
 function onName(id: string) {
   actionError.value = ''
@@ -78,15 +63,6 @@ async function remove(id: string) {
 
 <template>
   <main class="screen">
-    <section v-if="showInstall || showIosHint" class="install">
-      <p v-if="showInstall">可以把「记录抽卡」安装到手机桌面。</p>
-      <p v-else>用 Safari 的分享按钮，选择「添加到主屏幕」。</p>
-      <div class="install-actions">
-        <button v-if="showInstall" type="button" @click="store.promptInstall()">安装</button>
-        <button class="ghost" type="button" @click="dismissHint">知道了</button>
-      </div>
-    </section>
-
     <p v-if="store.link === 'offline'" class="banner" role="status">存储服务没连上，先不要修改。</p>
 
     <p v-if="store.link === 'syncing' && groups.length === 0" class="empty">正在读取…</p>
