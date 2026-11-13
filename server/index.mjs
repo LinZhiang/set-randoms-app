@@ -1,5 +1,5 @@
 import { createServer } from 'node:http'
-import { createNode, deleteNode, readNodes, updateNode } from './store.mjs'
+import { createNode, deleteNode, readNodes, recordView, updateNode } from './store.mjs'
 
 const port = Number(process.env.PORT || 3000)
 const host = process.env.HOST || '127.0.0.1'
@@ -87,20 +87,43 @@ const server = createServer(async (req, res) => {
 
     if (req.method === 'POST' && url.pathname === '/api/nodes') {
       const result = await createNode(await readJson(req))
-      send(res, result.error ? result.status : 201, result.error ? { message: result.error } : result)
+      send(
+        res,
+        result.error ? result.status : 201,
+        result.error ? { message: result.error } : result,
+      )
+      return
+    }
+
+    const viewed = url.pathname.match(/^\/api\/nodes\/([^/]+)\/view$/)
+    if (viewed && req.method === 'POST') {
+      const result = await recordView(decodeURIComponent(viewed[1]))
+      send(
+        res,
+        result.error ? result.status : 200,
+        result.error ? { message: result.error } : result,
+      )
       return
     }
 
     const id = nodeId(url.pathname)
     if (id && req.method === 'PUT') {
       const result = await updateNode(id, await readJson(req))
-      send(res, result.error ? result.status : 200, result.error ? { message: result.error } : result)
+      send(
+        res,
+        result.error ? result.status : 200,
+        result.error ? { message: result.error } : result,
+      )
       return
     }
 
     if (id && req.method === 'DELETE') {
       const result = await deleteNode(id)
-      send(res, result.error ? result.status : 200, result.error ? { message: result.error } : result)
+      send(
+        res,
+        result.error ? result.status : 200,
+        result.error ? { message: result.error } : result,
+      )
       return
     }
 
@@ -112,5 +135,5 @@ const server = createServer(async (req, res) => {
 })
 
 server.listen(port, host, () => {
-  console.log(`记录抽卡 storage listening on http://${host}:${port}`)
+  console.log(`卡片式练习 storage listening on http://${host}:${port}`)
 })

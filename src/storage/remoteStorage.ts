@@ -60,6 +60,13 @@ export function updateNode(id: string, draft: NodeDraft) {
   })
 }
 
+export function recordView(id: string) {
+  return request<{ node: CardNode; revision: number }>(
+    `/api/nodes/${encodeURIComponent(id)}/view`,
+    { method: 'POST' },
+  )
+}
+
 export function deleteNode(id: string) {
   return request<{ deletedIds: string[]; revision: number }>(
     `/api/nodes/${encodeURIComponent(id)}`,

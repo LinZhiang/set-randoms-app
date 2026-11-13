@@ -15,7 +15,7 @@ const title = computed(() => {
   if (route.name === 'level' && typeof route.params.id === 'string') {
     return store.findNode(route.params.id)?.name || '子节点'
   }
-  return '记录抽卡'
+  return '卡片式练习'
 })
 
 const installed =

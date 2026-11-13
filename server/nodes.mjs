@@ -54,6 +54,11 @@ function nodeId(pathname) {
   return match ? decodeURIComponent(match[1]) : ''
 }
 
+function viewId(pathname) {
+  const match = pathname.match(/^\/api\/nodes\/([^/]+)\/view$/)
+  return match ? decodeURIComponent(match[1]) : ''
+}
+
 export function handleApi(state, method, pathname, input) {
   if (!state || !Array.isArray(state.nodes) || !Number.isInteger(state.revision)) {
     state = emptyState()
@@ -97,10 +102,22 @@ export function handleApi(state, method, pathname, input) {
       details: details.details,
       createdAt: now,
       updatedAt: now,
+      views: 0,
     }
     state.nodes.push(node)
     state.revision += 1
     return { status: 201, changed: true, state, body: { node, revision: state.revision } }
+  }
+
+  const viewedId = viewId(pathname)
+  if (viewedId && method === 'POST') {
+    const current = state.nodes.find((node) => node.id === viewedId)
+    if (!current) return fail(state, 404, '节点不存在')
+    const hasChild = state.nodes.some((node) => node.parentId === viewedId)
+    if (hasChild) return fail(state, 400, '只有最底层的叶子节点才记录查看次数')
+    current.views = (current.views ?? 0) + 1
+    state.revision += 1
+    return { status: 200, changed: true, state, body: { node: current, revision: state.revision } }
   }
 
   const id = nodeId(pathname)

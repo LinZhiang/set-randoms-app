@@ -5,6 +5,7 @@ export interface CardNode {
   details: string
   createdAt: string
   updatedAt: string
+  views: number
 }
 
 export interface NodeSnapshot {

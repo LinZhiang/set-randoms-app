@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { createNode, deleteNode, fetchNodes, updateNode } from '@/storage/remoteStorage'
+import { createNode, deleteNode, fetchNodes, recordView, updateNode } from '@/storage/remoteStorage'
 import type { CardNode, NodeDraft, NodeSnapshot } from '@/types/node'
 
 const CACHE_KEY = 'record-draws-tree'
@@ -14,9 +14,16 @@ function readCache(): NodeSnapshot | null {
     if (!raw) return null
     const parsed = JSON.parse(raw) as NodeSnapshot
     if (!parsed || !Array.isArray(parsed.nodes)) return null
-    return parsed
+    return normalize(parsed)
   } catch {
     return null
+  }
+}
+
+function normalize(snapshot: NodeSnapshot): NodeSnapshot {
+  return {
+    revision: snapshot.revision,
+    nodes: snapshot.nodes.map((node) => ({ ...node, views: node.views ?? 0 })),
   }
 }
 
@@ -107,7 +114,7 @@ export const useNodesStore = defineStore('nodes', () => {
   async function refresh(options?: { quiet?: boolean }) {
     if (!options?.quiet) link.value = 'syncing'
     try {
-      const snapshot = await fetchNodes()
+      const snapshot = normalize(await fetchNodes())
       revision.value = snapshot.revision
       nodes.value = snapshot.nodes
       writeCache(snapshot)
@@ -151,6 +158,23 @@ export const useNodesStore = defineStore('nodes', () => {
     }
   }
 
+  async function markViewed(id: string) {
+    const current = findNode(id)
+    if (!current || childrenOf(id).length > 0) return current
+    const optimistic = { ...current, views: (current.views ?? 0) + 1 }
+    remember(optimistic)
+    try {
+      const result = await recordView(id)
+      const node = { ...result.node, views: result.node.views ?? optimistic.views }
+      remember(node)
+      revision.value = result.revision
+      writeCache({ revision: revision.value, nodes: nodes.value })
+      return node
+    } catch {
+      return optimistic
+    }
+  }
+
   async function promptInstall() {
     const event = installPrompt.value
     if (!event) return
@@ -188,6 +212,7 @@ export const useNodesStore = defineStore('nodes', () => {
     isExpanded,
     toggle,
     installPrompt,
+    markViewed,
     promptInstall,
     refresh,
     addNode,

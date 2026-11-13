@@ -38,7 +38,7 @@ const router = createRouter({
 })
 
 router.afterEach(() => {
-  document.title = '记录抽卡'
+  document.title = '卡片式练习'
 })
 
 export default router

@@ -20,11 +20,13 @@ const groups = computed(() =>
     id: node.id,
     name: node.name,
     details: node.details,
+    views: node.views,
     hasChildren: store.childrenOf(node.id).length > 0,
     children: store.childrenOf(node.id).map((child) => ({
       id: child.id,
       name: child.name,
       details: child.details,
+      views: child.views,
       hasDeeper: store.childrenOf(child.id).length > 0,
     })),
   })),
@@ -75,6 +77,7 @@ async function remove(id: string) {
         <NodeBlock
           :name="group.name"
           :details="group.details"
+          :views="group.views"
           :has-test="group.hasChildren"
           :has-deeper="false"
           :selected="selectedId === group.id"
@@ -96,6 +99,7 @@ async function remove(id: string) {
               nested
               :name="child.name"
               :details="child.details"
+              :views="child.views"
               :has-test="child.hasDeeper"
               :has-deeper="child.hasDeeper"
               :selected="selectedId === child.id"

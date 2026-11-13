@@ -46,6 +46,7 @@ async function remove() {
       </p>
       <h2>{{ node.name }}</h2>
       <p class="time">更新于 {{ updatedLabel }}</p>
+      <p v-if="children.length === 0" class="time">查看 {{ node.views ?? 0 }} 次</p>
       <p v-if="node.details" class="details">{{ node.details }}</p>
       <p v-else class="details muted">还没有写详情。</p>
 

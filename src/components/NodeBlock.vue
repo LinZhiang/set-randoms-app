@@ -10,6 +10,7 @@ defineProps<{
   confirming: boolean
   canEdit: boolean
   saving: boolean
+  views?: number
 }>()
 
 const emit = defineEmits<{
@@ -27,7 +28,10 @@ const emit = defineEmits<{
 <template>
   <div class="entry" :class="{ nested, selected }">
     <div class="node-row">
-      <button class="node-name" type="button" @click="emit('select')">{{ name }}</button>
+      <button class="node-name" type="button" @click="emit('select')">
+        <span>{{ name }}</span>
+        <small v-if="!hasTest">查看 {{ views ?? 0 }} 次</small>
+      </button>
       <button v-if="hasTest" class="mini" type="button" aria-label="测试" @click="emit('test')">
         测
       </button>

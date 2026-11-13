@@ -77,6 +77,15 @@ export function updateNode(id, input) {
   })
 }
 
+export function recordView(id) {
+  return exclusive(async () => {
+    const state = await load()
+    const result = handleApi(state, 'POST', `/api/nodes/${encodeURIComponent(id)}/view`, null)
+    if (result.changed) await save(result.state)
+    return fromResult(result)
+  })
+}
+
 export function deleteNode(id) {
   return exclusive(async () => {
     const state = await load()

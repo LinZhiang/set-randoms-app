@@ -9,6 +9,7 @@ const store = useNodesStore()
 const index = ref(0)
 const detailsOpen = ref(false)
 const order = ref<string[] | null>(null)
+const countedId = ref('')
 
 const nodeId = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''))
 const source = computed(() => store.findNode(nodeId.value))
@@ -53,6 +54,16 @@ const cards = computed(() =>
 )
 const card = computed(() => cards.value[index.value] ?? null)
 
+watch(
+  card,
+  (current) => {
+    if (!current || countedId.value === current.id) return
+    countedId.value = current.id
+    void store.markViewed(current.id)
+  },
+  { immediate: true },
+)
+
 watch(cards, (list) => {
   if (index.value > list.length - 1) index.value = Math.max(0, list.length - 1)
 })
@@ -86,6 +97,7 @@ function step(delta: number) {
       <button class="draw-card" type="button" @click="detailsOpen = !detailsOpen">
         <p class="card-count">{{ index + 1 }} / {{ cards.length }}</p>
         <h2>{{ card.name }}</h2>
+        <p class="card-views">查看 {{ card.views ?? 0 }} 次</p>
         <p v-if="detailsOpen" class="card-details">{{ card.details || '还没有详情。' }}</p>
         <p v-else class="card-hint">点击展开详情</p>
       </button>

@@ -46,11 +46,14 @@ button {
   border: 0;
   border-radius: 999px;
   min-height: 2.75rem;
+  max-width: 100%;
   padding: 0.65rem 1rem;
   background: var(--ink);
   color: var(--sheet);
   cursor: pointer;
   touch-action: manipulation;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 button:disabled {
@@ -74,6 +77,7 @@ h2,
 h3,
 p {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 h1,
