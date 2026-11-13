@@ -1,10 +1,19 @@
-import type { RandomSet, StorageHealth, StoragePushResult } from '@/types/randomSet'
+import type { CardNode, NodeDraft, NodeSnapshot } from '@/types/node'
 
-const REQUEST_TIMEOUT_MS = 2500
+const REQUEST_TIMEOUT_MS = 10000
 
 function apiUrl(path: string) {
   const base = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
   return `${base}${path}`
+}
+
+function headers(hasBody: boolean) {
+  const token = import.meta.env.VITE_API_TOKEN
+  return {
+    Accept: 'application/json',
+    ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -14,35 +23,46 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     const response = await fetch(apiUrl(path), {
       ...init,
+      cache: 'no-store',
       signal: controller.signal,
-      headers: {
-        Accept: 'application/json',
-        ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
-      },
+      headers: headers(Boolean(init?.body)),
     })
-
+    const body = (await response.json().catch(() => null)) as { message?: string } | null
     if (!response.ok) {
-      throw new Error(`远程存储响应 ${response.status}`)
+      throw new Error(body?.message || `存储服务响应 ${response.status}`)
     }
-
-    return (await response.json()) as T
+    return body as T
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('远程存储没有在时限内响应')
+      throw new Error('存储服务没有在时限内响应')
     }
-    throw error instanceof Error ? error : new Error('远程存储不可用')
+    throw error instanceof Error ? error : new Error('存储服务不可用')
   } finally {
     clearTimeout(timer)
   }
 }
 
-export function checkRemoteStorage() {
-  return request<StorageHealth>('/api/health')
+export function fetchNodes() {
+  return request<NodeSnapshot>('/api/nodes')
 }
 
-export function pushSets(sets: RandomSet[]) {
-  return request<StoragePushResult>('/api/sets', {
-    method: 'PUT',
-    body: JSON.stringify({ sets }),
+export function createNode(draft: NodeDraft) {
+  return request<{ node: CardNode; revision: number }>('/api/nodes', {
+    method: 'POST',
+    body: JSON.stringify(draft),
   })
+}
+
+export function updateNode(id: string, draft: NodeDraft) {
+  return request<{ node: CardNode; revision: number }>(`/api/nodes/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(draft),
+  })
+}
+
+export function deleteNode(id: string) {
+  return request<{ deletedIds: string[]; revision: number }>(
+    `/api/nodes/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+  )
 }

@@ -1,6 +1,6 @@
-# Set Randoms
+# 记录抽卡
 
-用 Vue 3 + TypeScript 做的随机集合。候选项只留在当前页面会话里。Node 服务负责以后的远程存储，现在只接收请求，不把数据写下来。
+手机上记录抽卡的树。每个节点有名称和详情，可以增、删、改。数据写在 Node 服务里，多台设备打开同一个地址会自动同步。页面可以安装到手机桌面。
 
 ## 本地
 
@@ -10,24 +10,23 @@ npm run server
 npm run dev
 ```
 
-页面在 `http://127.0.0.1:5173`。Vite 会把 `/api` 转到 `http://127.0.0.1:3000`。
+手机和电脑在同一个 Wi-Fi 时，用终端里的 Network 地址打开。开发服务器会把 `/api` 转到本机的 Node 服务。
 
-## 存储
+记录保存在 `server/data/nodes.json`。
 
-`server/index.mjs` 提供三个接口：
+## 安装到手机
 
-- `GET /api/health`
-- `GET /api/sets`：总是返回空数组
-- `PUT /api/sets`：校验通过后丢弃内容
+用 HTTPS 打开页面后：
 
-`persistence` 固定为 `false`。真正要保存时，再在这个服务里补上写入。
+- Android：页面里出现「安装」，或用浏览器菜单「安装应用」。
+- iPhone：用 Safari 打开，点分享，再选「添加到主屏幕」。
 
 ## Cloudflare Pages
 
-把这个 GitHub 仓库接到 Pages 即可。
+Pages 只托管页面。同步要另外运行 `server/index.mjs`，并让手机访问得到它。
 
 - 构建命令：`npm run build`
 - 输出目录：`dist`
-- Node 版本：22.18 或更高
+- 构建环境变量：`VITE_API_BASE` 设为 Node 服务的公网地址
 
-Pages 只托管页面，不会运行 `server/`。线上会显示远程存储未连接，集合刷新后就没有了。`public/_redirects` 已经处理了前端路由。
+如果给服务设置了 `API_TOKEN`，构建时还要设置相同的 `VITE_API_TOKEN`。服务监听地址用 `HOST=0.0.0.0`。

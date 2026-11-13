@@ -1,20 +1,44 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import TreeView from '../views/TreeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      name: 'tree',
+      component: TreeView,
     },
     {
-      path: '/storage',
-      name: 'storage',
-      component: () => import('../views/StorageView.vue'),
+      path: '/level/:id',
+      name: 'level',
+      component: TreeView,
+    },
+    {
+      path: '/test/:id',
+      name: 'test',
+      component: () => import('../views/TestView.vue'),
+    },
+    {
+      path: '/node/:id',
+      name: 'detail',
+      component: () => import('../views/NodeDetailView.vue'),
+    },
+    {
+      path: '/node/:id/edit',
+      name: 'edit',
+      component: () => import('../views/NodeEditView.vue'),
+    },
+    {
+      path: '/new/:parentId?',
+      name: 'create',
+      component: () => import('../views/NodeEditView.vue'),
     },
   ],
+})
+
+router.afterEach(() => {
+  document.title = '记录抽卡'
 })
 
 export default router
