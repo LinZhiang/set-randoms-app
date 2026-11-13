@@ -246,6 +246,52 @@
   padding-bottom: 0;
 }
 
+.card-stage {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(18rem + 1.25rem);
+}
+
+.card-next-enter-active,
+.card-next-leave-active,
+.card-prev-enter-active,
+.card-prev-leave-active {
+  transition:
+    transform 0.34s ease,
+    opacity 0.34s ease;
+}
+
+.card-next-leave-active,
+.card-prev-leave-active {
+  position: absolute;
+  top: 1.25rem;
+  right: 1rem;
+  left: 1rem;
+  width: auto;
+  margin: 0;
+}
+
+.card-next-enter-from,
+.card-prev-leave-to {
+  transform: translateX(105%);
+  opacity: 0.4;
+}
+
+.card-next-leave-to,
+.card-prev-enter-from {
+  transform: translateX(-105%);
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-next-enter-active,
+  .card-next-leave-active,
+  .card-prev-enter-active,
+  .card-prev-leave-active {
+    transition: none;
+  }
+}
+
 .draw-card {
   display: grid;
   align-content: start;

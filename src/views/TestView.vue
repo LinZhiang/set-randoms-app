@@ -10,6 +10,7 @@ const index = ref(0)
 const detailsOpen = ref(false)
 const order = ref<string[] | null>(null)
 const countedId = ref('')
+const direction = ref(1)
 
 const nodeId = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''))
 const source = computed(() => store.findNode(nodeId.value))
@@ -80,6 +81,7 @@ function goBack() {
 function step(delta: number) {
   const next = index.value + delta
   if (next < 0 || next >= cards.value.length) return
+  direction.value = delta
   index.value = next
 }
 </script>
@@ -93,15 +95,17 @@ function step(delta: number) {
     <template v-else-if="cards.length === 0">
       <p class="empty">「{{ source.name }}」下面还没有叶子节点。</p>
     </template>
-    <template v-else-if="card">
-      <button class="draw-card" type="button" @click="detailsOpen = !detailsOpen">
-        <p class="card-count">{{ index + 1 }} / {{ cards.length }}</p>
-        <h2>{{ card.name }}</h2>
-        <p class="card-views">查看 {{ card.views ?? 0 }} 次</p>
-        <p v-if="detailsOpen" class="card-details">{{ card.details || '还没有详情。' }}</p>
-        <p v-else class="card-hint">点击展开详情</p>
-      </button>
-    </template>
+    <div v-else-if="card" class="card-stage">
+      <Transition :name="direction > 0 ? 'card-next' : 'card-prev'">
+        <button :key="card.id" class="draw-card" type="button" @click="detailsOpen = !detailsOpen">
+          <p class="card-count">{{ index + 1 }} / {{ cards.length }}</p>
+          <h2>{{ card.name }}</h2>
+          <p class="card-views">查看 {{ card.views ?? 0 }} 次</p>
+          <p v-if="detailsOpen" class="card-details">{{ card.details || '还没有详情。' }}</p>
+          <p v-else class="card-hint">点击展开详情</p>
+        </button>
+      </Transition>
+    </div>
 
     <div class="dock actions">
       <button type="button" :disabled="index === 0 || cards.length === 0" @click="step(-1)">
