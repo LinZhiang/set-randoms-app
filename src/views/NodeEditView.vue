@@ -92,6 +92,8 @@ function chooseParent(id: string) {
   parentId.value = id
   searching.value = false
   query.value = ''
+  const input = document.getElementById('parent-search')
+  if (input instanceof HTMLInputElement && document.activeElement === input) input.blur()
 }
 
 function onQuery(event: Event) {
@@ -178,11 +180,12 @@ async function onSubmit() {
         <label for="parent-search">放在</label>
         <input
           id="parent-search"
-          :value="searching ? query : (parent?.name ?? '')"
+          :value="searching ? query : (parent?.name || '顶层')"
           :placeholder="parent ? parent.name : '搜索节点，不填就是顶层'"
           maxlength="80"
           enterkeyhint="search"
           autocomplete="off"
+          @pointerdown="startSearch"
           @focus="startSearch"
           @input="onQuery"
           @blur="stopSearch"
