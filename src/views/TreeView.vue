@@ -15,20 +15,13 @@ const actionError = ref('')
 const parentId = computed(() =>
   route.name === 'level' && typeof route.params.id === 'string' ? route.params.id : null,
 )
-const groups = computed(() =>
+const items = computed(() =>
   store.childrenOf(parentId.value).map((node) => ({
     id: node.id,
     name: node.name,
     details: node.details,
     views: node.views,
     hasChildren: store.childrenOf(node.id).length > 0,
-    children: store.childrenOf(node.id).map((child) => ({
-      id: child.id,
-      name: child.name,
-      details: child.details,
-      views: child.views,
-      hasDeeper: store.childrenOf(child.id).length > 0,
-    })),
   })),
 )
 
@@ -67,57 +60,33 @@ async function remove(id: string) {
   <main class="screen">
     <p v-if="store.link === 'offline'" class="banner" role="status">存储服务没连上，先不要修改。</p>
 
-    <p v-if="store.link === 'syncing' && groups.length === 0" class="empty">正在读取…</p>
-    <p v-else-if="groups.length === 0" class="empty">
+    <p v-if="store.link === 'syncing' && items.length === 0" class="empty">正在读取…</p>
+    <p v-else-if="items.length === 0" class="empty">
       {{ parentId ? '这里还没有子节点。' : '还没有记录。先加一个最顶层的类型。' }}
     </p>
 
     <ul v-else class="groups">
-      <li v-for="group in groups" :key="group.id" class="group">
+      <li v-for="item in items" :key="item.id" class="group">
         <NodeBlock
-          :name="group.name"
-          :details="group.details"
-          :views="group.views"
-          :has-test="group.hasChildren"
-          :has-deeper="false"
-          :selected="selectedId === group.id"
-          :details-open="detailsOpenId === group.id"
-          :confirming="confirmingId === group.id"
+          :name="item.name"
+          :details="item.details"
+          :views="item.views"
+          :has-test="item.hasChildren"
+          :has-deeper="item.hasChildren"
+          :selected="selectedId === item.id"
+          :details-open="detailsOpenId === item.id"
+          :confirming="confirmingId === item.id"
           :can-edit="store.canEdit"
           :saving="store.saving"
-          @select="onName(group.id)"
-          @test="router.push(`/test/${group.id}`)"
-          @add="router.push(`/new/${group.id}`)"
-          @edit="router.push(`/node/${group.id}/edit`)"
-          @ask-remove="confirmingId = group.id"
-          @remove="remove(group.id)"
+          @select="onName(item.id)"
+          @test="router.push(`/test/${item.id}`)"
+          @deeper="router.push(`/level/${item.id}`)"
+          @add="router.push(`/new/${item.id}`)"
+          @edit="router.push(`/node/${item.id}/edit`)"
+          @ask-remove="confirmingId = item.id"
+          @remove="remove(item.id)"
           @cancel-remove="confirmingId = null"
         />
-        <ul v-if="group.children.length" class="subnodes">
-          <li v-for="child in group.children" :key="child.id">
-            <NodeBlock
-              nested
-              :name="child.name"
-              :details="child.details"
-              :views="child.views"
-              :has-test="child.hasDeeper"
-              :has-deeper="child.hasDeeper"
-              :selected="selectedId === child.id"
-              :details-open="detailsOpenId === child.id"
-              :confirming="confirmingId === child.id"
-              :can-edit="store.canEdit"
-              :saving="store.saving"
-              @select="onName(child.id)"
-              @test="router.push(`/test/${child.id}`)"
-              @deeper="router.push(`/level/${child.id}`)"
-              @add="router.push(`/new/${child.id}`)"
-              @edit="router.push(`/node/${child.id}/edit`)"
-              @ask-remove="confirmingId = child.id"
-              @remove="remove(child.id)"
-              @cancel-remove="confirmingId = null"
-            />
-          </li>
-        </ul>
       </li>
     </ul>
 
