@@ -88,6 +88,7 @@ function step(delta: number) {
 
 <template>
   <main class="screen test-screen">
+    <div class="pane">
     <p v-if="store.link === 'syncing' && !source && cards.length === 0" class="empty">正在读取…</p>
     <template v-else-if="!source">
       <p class="empty">这个节点不存在，可能已在别的设备上删除。</p>
@@ -105,6 +106,7 @@ function step(delta: number) {
           <p v-else class="card-hint">点击展开详情</p>
         </button>
       </Transition>
+    </div>
     </div>
 
     <div class="dock actions">

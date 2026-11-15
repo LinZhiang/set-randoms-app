@@ -58,6 +58,7 @@ async function remove(id: string) {
 
 <template>
   <main class="screen">
+    <div class="pane">
     <p v-if="store.link === 'offline'" class="banner" role="status">存储服务没连上，先不要修改。</p>
 
     <p v-if="store.link === 'syncing' && items.length === 0" class="empty">正在读取…</p>
@@ -91,6 +92,7 @@ async function remove(id: string) {
     </ul>
 
     <p v-if="actionError" class="form-error" role="alert">{{ actionError }}</p>
+    </div>
 
     <div class="dock">
       <button

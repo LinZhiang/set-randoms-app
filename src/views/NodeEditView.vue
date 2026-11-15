@@ -160,6 +160,7 @@ async function onSubmit() {
     <p v-if="store.link === 'syncing' && !isCreate && !node" class="empty">正在读取…</p>
     <p v-else-if="!isCreate && !node" class="empty">这个节点不存在，可能已在别的设备上删除。</p>
     <form v-else @submit.prevent="onSubmit">
+      <div class="pane">
       <p v-if="isCreate" class="sync-note">
         {{ parent ? `添加到「${parent.name}」下面。` : '添加为顶层类型。' }}
       </p>
@@ -204,6 +205,7 @@ async function onSubmit() {
         </ul>
       </div>
       <p v-if="error" class="form-error" role="alert">{{ error }}</p>
+      </div>
       <div class="dock">
         <button type="submit" :disabled="!store.canEdit || store.saving">
           {{ store.saving ? '正在保存…' : '保存' }}

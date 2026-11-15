@@ -34,6 +34,7 @@ async function remove() {
   <main class="screen detail">
     <p v-if="store.link === 'syncing' && !node" class="empty">正在读取…</p>
     <template v-else-if="node">
+      <div class="pane">
       <p v-if="crumbs.length" class="crumbs">
         <button
           v-for="crumb in crumbs"
@@ -64,6 +65,7 @@ async function remove() {
       </section>
 
       <p v-if="error" class="form-error" role="alert">{{ error }}</p>
+      </div>
 
       <div v-if="confirming" class="confirm" role="dialog" aria-modal="true">
         <p>删除「{{ node.name }}」以及里面的子节点？删除后其他设备也会同步消失。</p>
@@ -98,7 +100,9 @@ async function remove() {
     </template>
 
     <template v-else>
+      <div class="pane">
       <p class="empty">这个节点不存在，可能已在别的设备上删除。</p>
+      </div>
       <div class="dock">
         <button type="button" @click="router.push('/')">回到列表</button>
       </div>
